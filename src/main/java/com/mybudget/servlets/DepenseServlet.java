@@ -1,6 +1,8 @@
 package com.mybudget.servlets;
 
+import com.mybudget.dao.CategorieDAO;
 import com.mybudget.dao.DepenseDAO;
+import com.mybudget.models.Categorie;
 import com.mybudget.models.Depense;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,102 +11,60 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @WebServlet("/depenses")
 public class DepenseServlet extends HttpServlet {
+    private DepenseDAO depenseDAO = new DepenseDAO();
+    private CategorieDAO categorieDAO = new CategorieDAO();
 
-    private DepenseDAO depenseDAO;
-
-    @Override
-    public void init() throws ServletException {
-        depenseDAO = new DepenseDAO();
-    }
-
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         String action = request.getParameter("action");
 
         try {
-            if (action == null) action = "list";
-
-            switch (action) {
-                case "new":
-                    showNewForm(request, response);
-                    break;
-                case "edit":
-                    showEditForm(request, response);
-                    break;
-                case "delete":
-                    deleteDepense(request, response);
-                    break;
-                default:
-                    listDepenses(request, response);
-                    break;
+            if("edit".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                Depense depense = depenseDAO.getById(id);
+                List<Categorie> categories = categorieDAO.getAllCategories();
+                request.setAttribute("depense", depense);
+                request.setAttribute("categories", categories);
+                request.getRequestDispatcher("depenses/form.jsp").forward(request, response);
+            } else if ("delete".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                depenseDAO.supprimerDepense(id);
+                response.sendRedirect("depenses?action=list");
+            } else {
+                List<Depense> depenses = depenseDAO.getAll();
+                request.setAttribute("depenses", depenses);
+                request.getRequestDispatcher("depenses/list.jsp").forward(request, response);
             }
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
         try {
-            switch (action) {
-                case "insert":
-                    insertDepense(request, response);
-                    break;
-                case "update":
-                    updateDepense(request, response);
-                    break;
-            }
+            int montant = Integer.parseInt(request.getParameter("montant"));
+            String description = request.getParameter("description");
+            Date date_depense = Date.valueOf(request.getParameter("date_depense"));
+            int categorie_id = Integer.parseInt(request.getParameter("categorie_id"));
+
+           if ("create".equals(action)) {
+               Depense depense = new Depense(0, montant, description, date_depense, categorie_id);
+               depenseDAO.ajouterDepense(depense);
+           } else if ("update".equals(action)) {
+               int id = Integer.parseInt(request.getParameter("id"));
+               Depense depense = new Depense(id, montant, description, date_depense, categorie_id);
+               depenseDAO.updateDepense(depense);
+           }
+           response.sendRedirect("depenses?action=list");
         } catch (Exception e) {
             throw new ServletException(e);
         }
-    }
-
-    private void listDepenses(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
-        List<Depense> liste = depenseDAO.getAll();
-        request.setAttribute("listeDepenses", liste);
-        request.getRequestDispatcher("WEB-INF/views/listeDepenses.jsp").forward(request, response);
-    }
-
-    private void showNewForm(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/views/ajouterDepense.jsp").forward(request, response);
-    }
-
-    private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Depense depense = depenseDAO.getById(id);
-        request.setAttribute("depense", depense);
-        request.getRequestDispatcher("/WEB-INF/views/modifierDepense.jsp").forward(request, response);
-    }
-
-    private void insertDepense(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
-        BigDecimal montant = new BigDecimal(request.getParameter("montant"));
-        Date date = java.sql.Date.valueOf(request.getParameter("date_depense"));
-        String description = request.getParameter("description");
-        int utilisateurId = 1;
-        int categorieId = Integer.parseInt(request.getParameter("categorie_id"));
-
-        Depense depense = new Depense(id, montant, date_depense, description, utilisateurId, categorieId);
-        depenseDAO.update(depense);
-        response.sendRedirect("depenses");
-    }
-    private void deleteDepense(HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
-        int id = Integer.parseInt(request.getParameter("id"));
-        depenseDAO.delete(id);
-        response.sendRedirect("depenses");
     }
 }

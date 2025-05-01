@@ -11,7 +11,17 @@ public class Depense {
     private int categorieId;
 
     //Constructeur
+
     public Depense() {}
+
+    public Depense(int id, double montant, String description, Date date_depense, int categorieId) {
+        this.id = id;
+        this.montant = montant;
+        this.description = description;
+        this.date_depense = date_depense;
+        this.categorieId = categorieId;
+    }
+
 
     public int getId() {
         return id;
