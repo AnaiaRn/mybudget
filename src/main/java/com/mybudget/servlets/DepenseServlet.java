@@ -57,7 +57,7 @@ public class DepenseServlet extends HttpServlet {
                 request.setAttribute("variation", variation);
                 request.setAttribute("pourcentageVariation", pourcentageVariation);
 
-                request.getRequestDispatcher("analyse.jsp");
+                request.getRequestDispatcher("analyse.jsp").forward(request, response);
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Depense depense = depenseDAO.getById(id);
