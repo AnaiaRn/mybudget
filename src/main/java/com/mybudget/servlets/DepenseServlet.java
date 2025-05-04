@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet("/depenses")
@@ -20,22 +21,59 @@ public class DepenseServlet extends HttpServlet {
     private CategorieDAO categorieDAO = new CategorieDAO();
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
+
         String action = request.getParameter("action");
 
+        DepenseDAO depenseDAO = new DepenseDAO();
+        CategorieDAO categorieDAO = new CategorieDAO();
+
         try {
-            if("edit".equals(action)) {
+            // Dans la partie "analyse" du doGet
+            if ("analyse" .equals(action)) {
+                LocalDate maintenant = LocalDate.now();
+                int mois = maintenant.getMonthValue();
+                int annee = maintenant.getYear();
+
+                //Donnée du mois courant
+                List<Depense> depenseMoisCourant = depenseDAO.getDepensesDuMois(mois, annee);
+                double totalCourant = depenseMoisCourant.stream().mapToDouble(Depense::getMontant).sum();
+
+                // Donnée du mois précedent
+                LocalDate moisPrecendent = maintenant.minusMonths(1);
+                List<Depense> depensesMoisPrecedent = depenseDAO.getDepensesDuMois(
+                        moisPrecendent.getMonthValue(),
+                        moisPrecendent.getYear()
+                );
+                double totalPrecedent = depensesMoisPrecedent.stream().mapToDouble(Depense::getMontant).sum();
+
+                //Calcul
+                double variation = totalCourant - totalPrecedent;
+                double pourcentageVariation = (totalPrecedent != 0) ? (variation / totalPrecedent * 100) : 0;
+
+                //Préparation du résultats
+                request.setAttribute("totalCourants", totalCourant);
+                request.setAttribute("totalPrecedent", totalPrecedent);
+                request.setAttribute("variation", variation);
+                request.setAttribute("pourcentageVariation", pourcentageVariation);
+
+                request.getRequestDispatcher("analyse.jsp");
+            } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Depense depense = depenseDAO.getById(id);
                 List<Categorie> categories = categorieDAO.getAllCategories();
+
                 request.setAttribute("depense", depense);
                 request.setAttribute("categories", categories);
                 request.getRequestDispatcher("form.jsp").forward(request, response);
+
             } else if ("create".equals(action)) {
                 List<Categorie> categories = categorieDAO.getAllCategories();
                 request.setAttribute("categories", categories);
                 request.getRequestDispatcher("form.jsp").forward(request, response);
+
             } else {
+                // Liste par défaut
                 List<Depense> depenses = depenseDAO.getAll();
                 request.setAttribute("depenses", depenses);
                 request.getRequestDispatcher("list.jsp").forward(request, response);
@@ -45,7 +83,7 @@ public class DepenseServlet extends HttpServlet {
         }
     }
 
-   protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
        throws ServletException, IOException {
         String action = request.getParameter("action");
 

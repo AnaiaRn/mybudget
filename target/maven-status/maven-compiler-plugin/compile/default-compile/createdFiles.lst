@@ -1,4 +1,5 @@
 com/mybudget/models/Utilisateur.class
+com/mybudget/utils/AnalyseDepense.class
 com/mybudget/dao/DepenseDAO.class
 com/mybudget/dao/CategorieDAO.class
 com/mybudget/dao/UtilisateurDAO.class

@@ -110,6 +110,35 @@ public class DepenseDAO {
         }
     }
 
+    public List<Depense> getDepensesDuMois(int mois, int annee) {
+        List<Depense> depenses = new ArrayList<>();
+        String sql = "SELECT * FROM depense WHERE EXTRACT(MONTH FROM date_depense) = ? AND EXTRACT(YEAR FROM date_depense) = ?";
+
+        try (Connection conn = ConnexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, mois);
+            stmt.setInt(2, annee);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Depense d = new Depense();
+                d.setId(rs.getInt("id"));
+                d.setMontant(rs.getDouble("montant"));
+                d.setDate_depense(rs.getDate("date_depense"));
+                d.setDescription(rs.getString("description"));
+                d.setCategorieId(rs.getInt("categorie_id"));
+                // Ajouter plus si besoin
+                depenses.add(d);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return depenses;
+    }
+
 
 
 }
