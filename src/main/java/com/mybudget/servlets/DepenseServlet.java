@@ -30,26 +30,35 @@ public class DepenseServlet extends HttpServlet {
                 List<Categorie> categories = categorieDAO.getAllCategories();
                 request.setAttribute("depense", depense);
                 request.setAttribute("categories", categories);
-                request.getRequestDispatcher("depenses/form.jsp").forward(request, response);
-            } else if ("delete".equals(action)) {
-                int id = Integer.parseInt(request.getParameter("id"));
-                depenseDAO.supprimerDepense(id);
-                response.sendRedirect("depenses?action=list");
+                request.getRequestDispatcher("form.jsp").forward(request, response);
+            } else if ("create".equals(action)) {
+                List<Categorie> categories = categorieDAO.getAllCategories();
+                request.setAttribute("categories", categories);
+                request.getRequestDispatcher("form.jsp").forward(request, response);
             } else {
                 List<Depense> depenses = depenseDAO.getAll();
                 request.setAttribute("depenses", depenses);
-                request.getRequestDispatcher("depenses/list.jsp").forward(request, response);
+                request.getRequestDispatcher("list.jsp").forward(request, response);
             }
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+   protected void doPost(HttpServletRequest request, HttpServletResponse response)
+       throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        try {
-            int montant = Integer.parseInt(request.getParameter("montant"));
+       System.out.println("Action: " + action);
+       System.out.println("ID: " + request.getParameter("id"));
+       System.out.println("Montant: " + request.getParameter("montant"));
+       System.out.println("Date: " + request.getParameter("date_depense"));
+       System.out.println("Description: " + request.getParameter("description"));
+       System.out.println("Categorie ID: " + request.getParameter("categorie_id"));
+
+
+       try {
+            double montant = Double.parseDouble(request.getParameter("montant"));
             String description = request.getParameter("description");
             Date date_depense = Date.valueOf(request.getParameter("date_depense"));
             int categorie_id = Integer.parseInt(request.getParameter("categorie_id"));
@@ -58,13 +67,20 @@ public class DepenseServlet extends HttpServlet {
                Depense depense = new Depense(0, montant, description, date_depense, categorie_id);
                depenseDAO.ajouterDepense(depense);
            } else if ("update".equals(action)) {
-               int id = Integer.parseInt(request.getParameter("id"));
-               Depense depense = new Depense(id, montant, description, date_depense, categorie_id);
-               depenseDAO.updateDepense(depense);
+                int id = Integer.parseInt(request.getParameter("id"));
+                Depense depense = new Depense(id, montant, description, date_depense, categorie_id);
+                depenseDAO.updateDepense(depense);
+            } else  if ("delete".equals(action)) {
+               int id = Integer.parseInt(request.getParameter("id"));  // Récupère l'ID de la dépense
+               depenseDAO.supprimerDepense(id);  // Appelle la méthode de suppression dans ton DAO
+               response.sendRedirect("depenses?action=list");  // Redirige vers la liste des dépenses après suppression
            }
-           response.sendRedirect("depenses?action=list");
+            response.sendRedirect("depenses?action=list");
         } catch (Exception e) {
             throw new ServletException(e);
         }
-    }
+   }
+
+
+
 }

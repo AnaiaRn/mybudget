@@ -5,7 +5,7 @@
                              https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
 
-  <!-- Encodage des requêtes -->
+  <!-- Configuration du servlet LoginServlet -->
   <servlet>
     <servlet-name>LoginServlet</servlet-name>
     <servlet-class>com.mybudget.servlets.LoginServlet</servlet-class>
@@ -16,7 +16,20 @@
     <url-pattern>/login</url-pattern>
   </servlet-mapping>
 
+  <!-- Configuration du servlet DepenseServlet -->
+<!--  <servlet>-->
+<!--    <servlet-name>DepenseServlet</servlet-name>-->
+<!--    <servlet-class>com.mybudget.servlets.DepenseServlet</servlet-class>-->
+<!--  </servlet>-->
+
+<!--  <servlet-mapping>-->
+<!--    <servlet-name>DepenseServlet</servlet-name>-->
+<!--    <url-pattern>/depenses</url-pattern>-->
+<!--  </servlet-mapping>-->
+
+  <!-- Page d'accueil par défaut -->
   <welcome-file-list>
     <welcome-file>login.jsp</welcome-file>
   </welcome-file-list>
+
 </web-app>

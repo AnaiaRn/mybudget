@@ -22,7 +22,7 @@ public class LoginServlet extends HttpServlet {
         if (utilisateur != null) {
             HttpSession session = request.getSession();
             session.setAttribute("Utilisateur", utilisateur);
-            response.sendRedirect("dashboard.jsp");
+            response.sendRedirect("mybudget-1.0-SNAPSHOT/depenses?action=list");
         } else {
             request.setAttribute("erreur", "Email ou Mot de passe invalide");
             request.getRequestDispatcher("login.jsp").forward(request, response);
