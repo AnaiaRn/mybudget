@@ -4,6 +4,8 @@ import com.mybudget.dao.CategorieDAO;
 import com.mybudget.dao.DepenseDAO;
 import com.mybudget.models.Categorie;
 import com.mybudget.models.Depense;
+import com.mybudget.utils.EmailSender;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,19 +22,15 @@ import java.util.stream.Collectors;
 
 @WebServlet("/depenses")
 public class DepenseServlet extends HttpServlet {
-    private DepenseDAO depenseDAO = new DepenseDAO();
-    private CategorieDAO categorieDAO = new CategorieDAO();
+    private final DepenseDAO depenseDAO = new DepenseDAO();
+    private final CategorieDAO categorieDAO = new CategorieDAO();
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         String action = request.getParameter("action");
 
-        DepenseDAO depenseDAO = new DepenseDAO();
-        CategorieDAO categorieDAO = new CategorieDAO();
-
         try {
-            // Dans la partie "analyse" du doGet
             if ("analyse".equals(action)) {
                 LocalDate maintenant = LocalDate.now();
                 int mois = maintenant.getMonthValue();
@@ -40,7 +38,9 @@ public class DepenseServlet extends HttpServlet {
 
                 // Données du mois courant
                 List<Depense> depensesMoisCourant = depenseDAO.getDepensesDuMois(mois, annee);
-                double totalCourant = depensesMoisCourant.stream().mapToDouble(Depense::getMontant).sum();
+                double totalCourant = depensesMoisCourant.stream()
+                        .mapToDouble(Depense::getMontant)
+                        .sum();
 
                 // Données du mois précédent
                 LocalDate moisPrecedent = maintenant.minusMonths(1);
@@ -48,56 +48,37 @@ public class DepenseServlet extends HttpServlet {
                         moisPrecedent.getMonthValue(),
                         moisPrecedent.getYear()
                 );
-                double totalPrecedent = depensesMoisPrecedent.stream().mapToDouble(Depense::getMontant).sum();
+                double totalPrecedent = depensesMoisPrecedent.stream()
+                        .mapToDouble(Depense::getMontant)
+                        .sum();
 
-                // Calcul de variation
+                // Calculs
                 double variation = totalCourant - totalPrecedent;
-                double pourcentageVariation = (totalPrecedent != 0) ? (variation / totalPrecedent * 100) : 0;
+                double pourcentageVariation = (totalPrecedent != 0) ?
+                        (variation / totalPrecedent * 100) : 0;
 
-                // Dépenses par catégorie
-                // Récupérer toutes les catégories (ID + nom)
+                // Analyse par catégorie
                 List<Categorie> categories = categorieDAO.getAllCategories();
-                for (Categorie c : categories) {
-                    System.out.println("Catégorie: ID = " + c.getId() + ", Nom = " + c.getNom());
-                }
+                Map<Integer, String> categorieNames = categories.stream()
+                        .collect(Collectors.toMap(Categorie::getId, Categorie::getNom));
 
-
-
-// Mapper les ID vers les noms
-                Map<Integer, String> categorieIdToNom = new HashMap<>();
-                for (Categorie c : categories) {
-                    categorieIdToNom.put(c.getId(), c.getNom());
-                }
-
-// Grouper les dépenses du mois courant par ID de catégorie
-                Map<Integer, Double> montantParCategorieId = depensesMoisCourant.stream()
+                Map<String, Double> depensesParCategorie = depensesMoisCourant.stream()
                         .collect(Collectors.groupingBy(
-                                Depense::getCategorieId,
+                                d -> categorieNames.getOrDefault(d.getCategorieId(), "Inconnue"),
                                 Collectors.summingDouble(Depense::getMontant)
                         ));
 
-// Convertir en Map<String, Double> pour envoyer le nom de la catégorie
-                Map<String, Double> depensesParCategorie = new HashMap<>();
-                for (Map.Entry<Integer, Double> entry : montantParCategorieId.entrySet()) {
-                    String nomCategorie = categorieIdToNom.get(entry.getKey());
-                    if (nomCategorie != null) {
-                        depensesParCategorie.put(nomCategorie, entry.getValue());
-                    }
-                }
-
-                request.setAttribute("depensesParCategorie", depensesParCategorie);
-
-
                 // Préparation des résultats
-                request.setAttribute("totalCourants", totalCourant);
+                request.setAttribute("totalCourant", totalCourant);
                 request.setAttribute("totalPrecedent", totalPrecedent);
                 request.setAttribute("variation", variation);
                 request.setAttribute("pourcentageVariation", pourcentageVariation);
                 request.setAttribute("depensesParCategorie", depensesParCategorie);
+                request.setAttribute("depenses", depensesMoisCourant);
 
                 request.getRequestDispatcher("analyse.jsp").forward(request, response);
-            }
-            else if ("edit".equals(action)) {
+
+            } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Depense depense = depenseDAO.getById(id);
                 List<Categorie> categories = categorieDAO.getAllCategories();
@@ -118,46 +99,70 @@ public class DepenseServlet extends HttpServlet {
                 request.getRequestDispatcher("list.jsp").forward(request, response);
             }
         } catch (Exception e) {
-            throw new ServletException(e);
+            request.setAttribute("error", "Erreur lors du traitement: " + e.getMessage());
+            request.getRequestDispatcher("error.jsp").forward(request, response);
         }
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-       throws ServletException, IOException {
+            throws ServletException, IOException {
+
         String action = request.getParameter("action");
 
-       System.out.println("Action: " + action);
-       System.out.println("ID: " + request.getParameter("id"));
-       System.out.println("Montant: " + request.getParameter("montant"));
-       System.out.println("Date: " + request.getParameter("date_depense"));
-       System.out.println("Description: " + request.getParameter("description"));
-       System.out.println("Categorie ID: " + request.getParameter("categorie_id"));
+        try {
+            // Validation des paramètres
+            if (request.getParameter("montant") == null || request.getParameter("date_depense") == null) {
+                throw new ServletException("Paramètres manquants");
+            }
 
-
-       try {
             double montant = Double.parseDouble(request.getParameter("montant"));
             String description = request.getParameter("description");
-            Date date_depense = Date.valueOf(request.getParameter("date_depense"));
-            int categorie_id = Integer.parseInt(request.getParameter("categorie_id"));
+            Date dateDepense = Date.valueOf(request.getParameter("date_depense"));
+            int categorieId = Integer.parseInt(request.getParameter("categorie_id"));
 
-           if ("create".equals(action)) {
-               Depense depense = new Depense(0, montant, description, date_depense, categorie_id);
-               depenseDAO.ajouterDepense(depense);
-           } else if ("update".equals(action)) {
+            if ("create".equals(action)) {
+                Depense depense = new Depense(0, montant, description, dateDepense, categorieId);
+                depenseDAO.ajouterDepense(depense);
+
+                // Envoi d'email
+                try {
+                    String to = "anaiarandrianantenaina@gmail.com";
+                    String sujet = "Nouvelle dépense enregistrée";
+                    String message = String.format(
+                            "Une nouvelle dépense a été ajoutée:\n" +
+                                    "Montant: %.2f Ariary\n" +
+                                    "Description: %s\n" +
+                                    "Date: %s\n" +
+                                    "Catégorie ID: %d",
+                            montant, description, dateDepense, categorieId
+                    );
+
+                    EmailSender.sendEmail(to, sujet, message);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors de l'envoi d'email: " + e.getMessage());
+                }
+
+            } else if ("update".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
-                Depense depense = new Depense(id, montant, description, date_depense, categorie_id);
+                Depense depense = new Depense(id, montant, description, dateDepense, categorieId);
                 depenseDAO.updateDepense(depense);
-            } else  if ("delete".equals(action)) {
-               int id = Integer.parseInt(request.getParameter("id"));  // Récupère l'ID de la dépense
-               depenseDAO.supprimerDepense(id);  // Appelle la méthode de suppression dans ton DAO
-               response.sendRedirect("depenses?action=list");  // Redirige vers la liste des dépenses après suppression
-           }
-            response.sendRedirect("depenses?action=list");
+
+            } else if ("delete".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                depenseDAO.supprimerDepense(id);
+            }
+
+            response.sendRedirect(request.getContextPath() + "/depenses");
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Format numérique invalide");
+            request.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(request, response);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("error", "Format de date invalide (utilisez yyyy-MM-dd)");
+            request.getRequestDispatcher("error.jsp").forward(request, response);
         } catch (Exception e) {
-            throw new ServletException(e);
+            request.setAttribute("error", "Erreur: " + e.getMessage());
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
-   }
-
-
-
+    }
 }
