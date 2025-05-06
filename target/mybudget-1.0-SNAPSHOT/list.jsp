@@ -42,6 +42,8 @@
             <td class="px-6 py-3 text-sm text-gray-800"><%= d.getDescription() %></td>
             <td class="px-6 py-3 text-sm text-gray-800"><%= d.getDate_depense() %></td>
             <td class="px-6 py-3 text-sm text-gray-800"><%= d.getCategorieId() %></td>
+            <td class="px-6 py-3 text-sm text-gray-800"><%= d.getCategorie().getNom() %></td>
+
            <td class="px-6 py-3 text-sm text-blue-600">
                <a href="depenses?action=edit&id=<%= d.getId() %>" class="hover:text-blue-800">Modifier</a> |
 <a href="depenses?action=delete&id=<%= d.getId() %>" class="hover:text-red-600">Supprimer</a>
