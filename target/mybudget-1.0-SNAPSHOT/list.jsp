@@ -15,6 +15,14 @@
 <div class="text-center mb-6">
     <a href="depenses?action=create" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Ajouter une dépense</a>
     <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300" onclick="exportToExcel()">Exporter en Excel</button>
+    <div style="position: absolute; top: 10px; right: 10px;">
+        <a href="${pageContext.request.contextPath}/logout" class="btn btn-danger">
+            <i class="fas fa-sign-out-alt"></i> Déconnexion
+        </a>
+        <span style="margin-left: 10px;">
+            Connecté en tant que : ${sessionScope.utilisateur.email}
+        </span>
+    </div>
 
 </div>
 

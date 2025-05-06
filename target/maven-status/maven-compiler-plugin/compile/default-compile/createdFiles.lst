@@ -3,6 +3,7 @@ com/mybudget/dao/CategorieDAO.class
 com/mybudget/utils/EmailSender.class
 com/mybudget/dao/ConnexionDB.class
 com/mybudget/models/Categorie.class
+com/mybudget/servlets/LogoutServlet.class
 com/mybudget/utils/EmailSender$1.class
 com/mybudget/utils/AnalyseDepense.class
 com/mybudget/dao/DepenseDAO.class

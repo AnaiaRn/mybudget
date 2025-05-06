@@ -53,7 +53,7 @@
 
             <button
               type="submit"
-              class="w-full bg-gray-800 text-white font-semibold py-3 rounded-lg hover:bg-gray-900 transition duration-300"
+              class="w-full bg-gray-900 text-white font-semibold py-3 rounded-lg hover:bg-gray-950 transition duration-300"
             >
               Se connecter
             </button>
