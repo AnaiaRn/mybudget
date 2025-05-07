@@ -1,4 +1,5 @@
 com/mybudget/models/Utilisateur.class
+com/mybudget/filter/AuthFilter.class
 com/mybudget/dao/CategorieDAO.class
 com/mybudget/utils/EmailSender.class
 com/mybudget/dao/ConnexionDB.class
