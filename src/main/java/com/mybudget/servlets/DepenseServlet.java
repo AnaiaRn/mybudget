@@ -27,9 +27,15 @@ public class DepenseServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // 1. Récupérer la session sans en créer une nouvelle
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("estConnecte") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+
+        // 2. Vérifier ET l'authentification ET la session
+        if (session == null || session.getAttribute("utilisateur") == null) {
+            // 3. Forcer l'enregistrement du cookie avant redirection
+            response.setHeader("Cache-Control", "no-cache, no-store");
+            response.sendRedirect(request.getContextPath() + "/login?from=" + request.getRequestURI());
+            return;
         }
 
 
@@ -113,7 +119,7 @@ public class DepenseServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("estConnecte") == null) {
+        if (session == null || session.getAttribute("utilisateur") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
         }
 
