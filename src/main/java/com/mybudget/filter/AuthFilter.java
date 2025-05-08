@@ -35,7 +35,7 @@ public class AuthFilter implements Filter {
         }
 
         HttpSession session = httpRequest.getSession(false);
-        boolean isLoggedIn = (session != null && session.getAttribute("estConnecte") != null);
+        boolean isLoggedIn = (session != null && session.getAttribute("utilisateur") != null);
 
         if (isLoggedIn) {
             chain.doFilter(request, response);

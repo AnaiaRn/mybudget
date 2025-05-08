@@ -16,62 +16,38 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Validation des paramètres
         String email = request.getParameter("email");
         String motDePasse = request.getParameter("mot_de_passe");
 
-        if (email == null || email.isEmpty() || motDePasse == null || motDePasse.isEmpty()) {
-            request.setAttribute("erreur", "Email et mot de passe requis");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
-            return;
-        }
-
-        // 2. Authentification
         UtilisateurDAO dao = new UtilisateurDAO();
         Utilisateur utilisateur = dao.getUtilisateurParEmailEtMotDePasse(email, motDePasse);
 
         if (utilisateur != null) {
-            // 3. Création de session sécurisée
-            HttpSession session = request.getSession();
-            session.invalidate(); // Invalide toute session existante
-
-            session = request.getSession(true);
-            session.setAttribute("utilisateur", utilisateur);
-            session.setAttribute("estConnecte", true);
-            session.setMaxInactiveInterval(SESSION_TIMEOUT);
-
-            // 4. Sécurité supplémentaire
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
-            response.setHeader("Pragma", "no-cache"); // HTTP 1.0
-            response.setDateHeader("Expires", 0); // Proxies
-
-            // 5. Cookie sécurisé
-            Cookie sessionCookie = new Cookie("JSESSIONID", session.getId());
-            sessionCookie.setHttpOnly(true);
-            sessionCookie.setSecure(request.isSecure()); // HTTPS seulement
-            sessionCookie.setMaxAge(SESSION_TIMEOUT);
-            response.addCookie(sessionCookie);
-
-            // 6. Journalisation
-            System.out.println("Connexion réussie - Email: " + email + " - IP: " + request.getRemoteAddr());
-
-            // 7. Redirection
-            String redirectPath = (String) session.getAttribute("redirectAfterLogin");
-            if (redirectPath != null && !redirectPath.isEmpty()) {
-                session.removeAttribute("redirectAfterLogin");
-                response.sendRedirect(redirectPath);
-            } else {
-                response.sendRedirect(request.getContextPath() + "/depenses?action=list");
+            // 1. Invalider l'ancienne session pour éviter les conflits
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                oldSession.invalidate();
             }
-        } else {
-            // Journalisation des échecs
-            System.out.println("Tentative de connexion échouée - Email: " + email + " - IP: " + request.getRemoteAddr());
 
+            // 2. Créer une nouvelle session
+            HttpSession newSession = request.getSession(true);
+            newSession.setAttribute("utilisateur", utilisateur);
+
+            // 3. Définir le timeout (en secondes)
+            newSession.setMaxInactiveInterval(30 * 60); // 30 minutes
+
+            // 4. Journalisation de debug
+            System.out.println("Session ID après connexion: " + newSession.getId());
+            System.out.println("Redirect vers: " + request.getContextPath() + "/depenses?action=list");
+
+            // 5. Redirection ABSOLUE
+            response.sendRedirect(request.getContextPath() + "/depenses?action=list");
+            return; // Important!
+        } else {
             request.setAttribute("erreur", "Identifiants invalides");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
     }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -21,7 +21,7 @@
       <div class="flex">
         <!-- PARTIE 1 -->
         <div class="w-[500px] h-[600px] rounded-l-2xl bg-black">
-         <img src="<%= request.getContextPath() %>/image/w.jpg" alt="Logo" class="mt-[115px] shadow-black">
+         <img src="<%= request.getContextPath() %>/image/a.jpg" alt="Logo" class="mt-[115px] shadow-black">
         </div>
 
         <!-- PARTIE 2 -->
