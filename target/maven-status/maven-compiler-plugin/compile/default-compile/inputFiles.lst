@@ -1,6 +1,7 @@
 /home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/dao/CategorieDAO.java
 /home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/models/Categorie.java
 /home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/servlets/DepenseServlet.java
+/home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/servlets/HomeServlet.java
 /home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/utils/AnalyseDepense.java
 /home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/dao/UtilisateurDAO.java
 /home/anaia-randrianantnaina/DAII/PROJET/JBOSS/mybudget/src/main/java/com/mybudget/models/Utilisateur.java

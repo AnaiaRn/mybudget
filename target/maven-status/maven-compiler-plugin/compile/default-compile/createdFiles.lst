@@ -12,3 +12,4 @@ com/mybudget/dao/UtilisateurDAO.class
 com/mybudget/servlets/DepenseServlet.class
 com/mybudget/servlets/LoginServlet.class
 com/mybudget/models/Depense.class
+com/mybudget/servlets/HomeServlet.class

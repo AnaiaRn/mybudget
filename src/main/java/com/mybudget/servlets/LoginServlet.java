@@ -48,7 +48,7 @@ public class LoginServlet extends HttpServlet {
             // 5. Redirection
             String redirectPath = request.getParameter("from") != null ?
                     request.getParameter("from") :
-                    request.getContextPath() + "/depenses?action=list";
+                    request.getContextPath() + "/home.jsp";
 
             System.out.println("Connexion réussie. Redirection vers: " + redirectPath);
             response.sendRedirect(redirectPath);

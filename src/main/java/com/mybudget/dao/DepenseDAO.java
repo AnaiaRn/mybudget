@@ -4,7 +4,9 @@ import com.mybudget.models.Depense;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DepenseDAO {
 
@@ -139,6 +141,43 @@ public class DepenseDAO {
         return depenses;
     }
 
+    public Map<String, Double> getDepensesParCategorie(int userId, int mois, int annee) {
+        Map<String, Double> result = new HashMap<>();
+        String sql = "SELECT c.nom, SUM(d.montant) as total " +
+                "FROM depenses d " +
+                "JOIN categories c ON d.categorie_id = c.id " +
+                "WHERE d.utilisateur_id = ? AND MONTH(d.date_depense) = ? AND YEAR(d.date_depense) = ? " +
+                "GROUP BY c.nom";
+
+        System.out.println("Exécution de la requête : " + sql);
+        System.out.println("Paramètres : userId=" + userId + ", mois=" + mois + ", année=" + annee);
+
+        try (Connection conn = ConnexionDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            stmt.setInt(2, mois);
+            stmt.setInt(3, annee);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String categorie = rs.getString("nom");
+                Double total = rs.getDouble("total");
+                System.out.println("Résultat trouvé : " + categorie + " = " + total);
+                result.put(categorie, total);
+            }
+
+            if (result.isEmpty()) {
+                System.out.println("Aucun résultat trouvé pour cette requête");
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur SQL: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 
 
 }
