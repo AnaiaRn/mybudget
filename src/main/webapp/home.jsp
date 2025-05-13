@@ -5,128 +5,63 @@
 <html>
 <head>
     <title>MyBudget - Accueil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .card { margin-bottom: 20px; }
-        .assistant { background-color: #f8f9fa; border-radius: 10px; padding: 15px; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 </head>
 <body>
-    <div class="container mt-4">
-        <!-- Message de bienvenue -->
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4>👋 Bienvenue, ${sessionScope.utilisateur.prenom} !</h4>
-            </div>
-            <div class="card-body">
-                <p class="card-text">Bonne gestion pour ce mois de <fmt:formatDate value="${moisEnCours}" pattern="MMMM yyyy"/>.</p>
-            </div>
-        </div>
+    <div class="w-screen h-screen bg-black ">
 
-        <!-- Résumé du mois -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <h5>📆 Résumé du mois</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Mois en cours : <fmt:formatDate value="${moisEnCours}" pattern="MMMM yyyy"/></li>
-                            <li class="list-group-item">Budget mensuel : <fmt:formatNumber value="${budgetMensuel}" type="currency"/></li>
-                            <li class="list-group-item">Total dépenses : <fmt:formatNumber value="${totalDepenses}" type="currency"/></li>
-                            <li class="list-group-item">Reste disponible :
-                                <span class="${resteDisponible < 0 ? 'text-danger' : 'text-success'}">
-                                    <fmt:formatNumber value="${resteDisponible}" type="currency"/>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+          <div class="flex justify-between items-center px-4 py-3 bg-black rounded-b-lg shadow-md">
+      {/* Logo / Titre */}
 
-            <!-- Alertes & tendances -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-warning">
-                        <h5>⚠️ Alertes & tendances</h5>
-                    </div>
-                    <div class="card-body">
-                        <c:choose>
-                            <c:when test="${resteDisponible < 0}">
-                                <div class="alert alert-danger">Dépassement de budget !</div>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="alert alert-success">Budget respecté</div>
-                            </c:otherwise>
-                        </c:choose>
-                        <p>${messageTendances}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions rapides -->
-        <div class="card mt-4">
-            <div class="card-header bg-success text-white">
-                <h5>Actions</h5>
-            </div>
-            <div class="card-body text-center">
-                <a href="${pageContext.request.contextPath}/depenses?action=create" class="btn btn-primary me-2">
-                    ➕ Ajouter une dépense
-                </a>
-                <a href="${pageContext.request.contextPath}/depenses?action=list" class="btn btn-secondary">
-                    📋 Voir la liste des dépenses
-                </a>
-            </div>
-        </div>
-
-        <!-- Assistant virtuel -->
-        <div class="card mt-4">
-            <div class="card-header bg-secondary text-white">
-                <h5>💬 Assistant virtuel</h5>
-            </div>
-            <div class="card-body assistant">
-                <div id="chat-messages" style="height: 150px; overflow-y: scroll; margin-bottom: 10px;">
-                    <!-- Messages du chat -->
-                </div>
-                <div class="input-group">
-                    <input type="text" id="question" class="form-control" placeholder="Posez votre question...">
-                    <button class="btn btn-outline-primary" onclick="envoyerQuestion()">Envoyer</button>
-                </div>
-                <small class="text-muted">Exemples : "Montre mes dépenses", "Budget transport", etc.</small>
-            </div>
-        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function envoyerQuestion() {
-            const question = document.getElementById('question').value;
-            const chat = document.getElementById('chat-messages');
 
-            // Ajouter la question
-            chat.innerHTML += `<div><strong>Vous:</strong> ${question}</div>`;
 
-            // Simuler une réponse (à remplacer par un appel AJAX)
-            const reponses = {
-                "dépenses": `Vos dépenses ce mois: <fmt:formatNumber value="${totalDepenses}" type="currency"/>`,
-                "transport": `Dépenses transport: <fmt:formatNumber value="${depensesTransport}" type="currency"/>`,
-                "budget": `Reste disponible: <fmt:formatNumber value="${resteDisponible}" type="currency"/>`
-            };
 
-            let reponse = "Je peux répondre sur vos dépenses, budget, etc.";
-            for (const [motCle, rep] of Object.entries(reponses)) {
-                if (question.toLowerCase().includes(motCle)) {
-                    reponse = rep;
-                    break;
-                }
-            }
+            <div class="flex justify-center items-center mt-4">
+              <div class="w-[90%] h-[250px] border border-gray-600 shadow-2xl"></div>
+            </div>
 
-            chat.innerHTML += `<div><strong>Assistant:</strong> ${reponse}</div>`;
-            chat.scrollTop = chat.scrollHeight;
-            document.getElementById('question').value = '';
-        }
-    </script>
+
+
+
+            <div class="flex justify-center space-x-4 mt-10 text-white">
+
+              <div class="w-[400px] h-[300px] bg-neutral-950 rounded-2xl flex flex-col justify-center items-center p-6 shadow-lg">
+                <p class="text-white text-[15px] text-center mb-6">
+                Chaque dépense compte ! <br /> Enregistrez-la ici en quelques clics.            </p>
+                <a href="${pageContext.request.contextPath}/depenses?action=create" class="px-4 py-2 text-white  rounded-lg border transition duration-300 text-[15px] hover:bg-neutral-900">
+                Ajouter une dépense
+                </a>
+             </div>
+
+             <div class="w-[400px] h-[300px] bg-neutral-950 rounded-2xl flex flex-col justify-center items-center p-6 shadow-lg">
+                <p class="text-white text-[15px] text-center mb-6">
+                  Gardez un œil sur vos dépenses quotidiennes <br /> pour mieux gérer votre budget.
+                </p>
+                <a href="${pageContext.request.contextPath}/depenses?action=list" class="px-4 py-2 text-white  rounded-lg border transition duration-300 text-[15px] hover:bg-neutral-900">
+                  Voir la liste
+                </a>
+             </div>
+             <div class="w-[400px] h-[300px] bg-neutral-950 rounded-2xl flex flex-col justify-center items-center p-6 shadow-lg">
+                <p class="text-white text-[15px] text-center mb-6">
+                Suivez vos finances chaque mois <br /> grâce à un rapport détaillé et automatique.
+                </p>
+                <a href="" class="px-4 py-2 text-white  rounded-lg border transition duration-300 text-[15px] hover:bg-neutral-900">
+                Rapport Mensuel
+                </a>
+             </div>
+             <div class="w-[400px] h-[300px] bg-neutral-950 rounded-2xl flex flex-col justify-center items-center p-6 shadow-lg">
+                <p class="text-white text-[15px] text-center mb-6">
+                Besoin d’aide ?  <br />Posez votre question à l’assistant virtuel MyBudget.
+                </p>
+                <a href="" class="px-4 py-2 text-white  rounded-lg border transition duration-300 text-[15px] hover:bg-neutral-900">
+                Assistant virtuel
+                </a>
+             </div>
+            </div>
+        </div>
 </body>
 </html>
