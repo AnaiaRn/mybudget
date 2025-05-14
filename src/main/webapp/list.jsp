@@ -44,11 +44,7 @@
 <body class="w-screen h-screen bg-black flex justify-center items-center">
     <div class="w-[80%] h-[80%] bg-neutral-950 relative flex flex-col">
         <!-- Info utilisateur discrète en haut -->
-        <div class="text-right pt-2 pr-2">
-            <span class="text-neutral-500 text-xs">
-                Connecté: <span class="text-neutral-400">${sessionScope.utilisateur.email}</span>
-            </span>
-        </div>
+
 
         <!-- Contenu principal -->
         <div class="flex-grow">
@@ -120,12 +116,8 @@
             </div>
         </div>
 
-        <!-- Déconnexion discrète en bas -->
-        <div class="text-right pb-2 pr-2">
-            <a href="${pageContext.request.contextPath}/logout" class="text-neutral-500 hover:text-neutral-400 text-xs transition">
-                Déconnexion
-            </a>
-        </div>
+
+
     </div>
 
     <script>
