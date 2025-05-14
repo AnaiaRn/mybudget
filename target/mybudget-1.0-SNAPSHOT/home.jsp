@@ -94,7 +94,7 @@
                 <p class="text-white text-[15px] text-center mb-6">
                     Suivez vos finances chaque mois <br /> grâce à un rapport détaillé et automatique.
                 </p>
-                <a href="#" class="px-6 py-2 text-white rounded-lg border border-green-500 bg-green-500/10 hover:bg-green-500/20 transition duration-300 text-[15px]">
+                <a href="depenses?action=analyse" class="px-6 py-2 text-white rounded-lg border border-green-500 bg-green-500/10 hover:bg-green-500/20 transition duration-300 text-[15px]">
                     Rapport Mensuel
                 </a>
             </div>
