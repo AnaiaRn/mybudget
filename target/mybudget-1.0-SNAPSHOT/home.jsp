@@ -104,7 +104,7 @@
                 <p class="text-white text-[15px] text-center mb-6">
                     Besoin d'aide ? <br />Posez votre question à l'assistant virtuel MyBudget.
                 </p>
-                <a href="#" class="px-6 py-2 text-white rounded-lg border border-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 transition duration-300 text-[15px]">
+                <a href="${pageContext.request.contextPath}/chatbot.jsp"  class="px-6 py-2 text-white rounded-lg border border-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 transition duration-300 text-[15px]">
                     Assistant virtuel
                 </a>
             </div>
